@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load ch_extras %}
+
+{% block title %}Controller of Alien Slice {{ slice.name }}{% endblock title %}
+
+{% block content %}
+<div class="main">
+	<div class="title">
+		<h1>Controller of Alien Slice <font class="highlight">{{ slice.name }}</font></h1>
+	</div>
+	<div class="form_div">
+
+		<form method="POST" action="{% url alien_aggregate_slice_controller_add agg_id slice_id %}" style="display:inline">{% csrf_token %}
+            <table>
+                <tr>
+                    <td>
+                        <label for="id_controller_url">Alien controller URL:</label>
+                        <input id="id_controller_url" type="text" name="controller_url" maxlength="100" />
+                        <font color={%if controller_error == "error"%}"red"{%else%}"black"{%endif%}> The format should be tcp:hostname:port or ssl:hostname:port </font>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" value="Add Controller" />
+                    </td>
+                </tr>
+
+            </table>
+       </form>
+	</div>
+</div>
+{% endblock content %}

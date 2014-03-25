@@ -1,0 +1,24 @@
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% url css_media_alien_plugin 'style.css' %}">
+{% endblock %}
+<h1>Calendar</h1>
+<table width="100%">
+    <tr>
+        <td width="20%" align="left">
+          &lt;&lt; <a href="{% url calender 2014 3%}">{{PreviousMonthName}} {{PreviousYear}}</a>
+        </td>
+        <td width="20%" align="left">
+          &lt;&lt; <a href="/calendar/{{YearBeforeThis}}/{{Month}}/">{{MonthName}} {{YearBeforeThis}}</a>
+        </td>
+        <td width="20%" align="center"><a href="/calendar">Today</a></td>
+        <td width="20%" align="right">
+          <a href="/calendar/{{YearAfterThis}}/{{Month}}/">{{MonthName}} {{YearAfterThis}}</a> &gt;&gt;
+        </td>
+        <td width="20%" align="right">
+          <a href="/calendar/{{NextYear}}/{{NextMonth}}/">{{NextMonthName}} {{NextYear}}</a> &gt;&gt;
+        </td>
+    </tr>
+</table>
+<div id="calendar">
+  {{Calendar}}
+</div>

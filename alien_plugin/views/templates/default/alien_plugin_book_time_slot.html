@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load ch_extras %}
+
+{% block title %}Time Slot of Alien Slice {{ slice.name }}{% endblock title %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% url css_media_alien_plugin 'jquery.simple-dtpicker.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% url css_media_alien_plugin 'style.css' %}">
+    <script type="text/javascript" src="{% url js_media_alien_plugin 'jquery.js' %}"></script>
+
+    <script type="text/javascript" src="{% url js_media_alien_plugin 'jquery.simple-dtpicker.js' %}"></script>
+
+
+{% endblock %}
+{% block content %}
+
+
+<div class="main">
+	<div class="title">
+		<h1>Time Slot of Alien Slice <font class="highlight">{{ slice.name }}</font></h1>
+	</div>
+
+<b> Resource Availability:</b>
+<table width="100%">
+    <tr>
+        <td width="20%" align="left">
+            <form method="POST" action="{% url alien_aggregate_slice_time_slot agg_id slice_id PreviousYear PreviousMonth %}" style="display:inline">{% csrf_token %}
+                <input id="selected_year" type="hidden" name="selected_year" maxlength="100" value="{{PreviousYear}}"/>
+                <input id="selected_month" type="hidden" name="selected_month" maxlength="100" value="{{PreviousMonth}}"/>
+           <input type="submit" value="&lt;&lt;{{PreviousMonthName}} {{PreviousYear}}" />
+       </form>
+
+        </td>
+
+        <td width="20%" align="right">
+
+             <form method="POST" action="{% url alien_aggregate_slice_time_slot agg_id slice_id NextYear NextMonth %}" style="display:inline">{% csrf_token %}
+                 <input id="selected_year" type="hidden" name="selected_year" maxlength="100" value="{{PreviousYear}}"/>
+                <input id="selected_month" type="hidden" name="selected_month" maxlength="100" value="{{PreviousMonth}}"/>
+           <input type="submit" value="{{NextMonthName}} {{NextYear}}&gt;&gt;" />
+       </form>
+
+        </td>
+    </tr>
+</table>
+<div id="calendar">
+  {{Calendar}}
+</div>
+<br>
+<br>
+	<div class="form_div">
+
+		<form method="POST" action="{% url alien_aggregate_slice_time_slot agg_id slice_id 0 0 %}" style="display:inline">{% csrf_token %}
+            <table>
+                <tr>
+                    <td>
+                        <label for="id_time_slot">Start Date:</label>
+                        <input id="id_time_slot" type="datetime" name="start_date" maxlength="100" />
+                         <script type="text/javascript">
+                             $(function(){
+                                 $('*[name=start_date]').appendDtpicker();
+                                 });
+                         </script>
+
+                        <font color={%if start_error == "error"%}"red"{%else%}"black"{%endif%}> The format should be YYY-MM-DD HH:MM </font>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="id_time_slot">End Date:</label>
+                        <input id="id_time_slot" type="datetime" name="end_date" maxlength="100" />
+                        <script type="text/javascript">
+                             $(function(){
+                                 $('*[name=end_date]').appendDtpicker();
+                                 });
+                         </script>
+                        <font color={%if end_error == "error"%}"red"{%else%}"black"{%endif%}> The format should be YYY-MM-DD HH:MM </font>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" value="book time slot" />
+                    </td>
+                </tr>
+
+            </table>
+       </form>
+	</div>
+</div>
+
+{% endblock content %}
