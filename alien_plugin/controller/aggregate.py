@@ -73,6 +73,8 @@ def aggregate_crud(request, agg_id=None):
         if client_form.is_valid() and agg_form.is_valid():
             # Ping is tried after every field check
             client = client_form.save(commit=False)
+            aggregate = agg_form.save(commit=False)
+            aggregate.client = client
             #s = xmlrpclib.Server('https://'+client.username+':'+client.password+'@'+client.url[8:])
 
             local_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'certs'))
