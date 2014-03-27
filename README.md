@@ -18,6 +18,7 @@
     mysql -p
     mysql> CREATE DATABASE expedient;
     Query OK, 1 row affected (0.00 sec)
+
     mysql> GRANT ALL ON expedient.* TO userName@127.0.0.1 IDENTIFIED BY 'password';
     Query OK, 0 rows affected (0.00 sec)
 
@@ -28,9 +29,13 @@
 
 - In the file:
      /opt/ofelia/expedient/bin/versions/default/install/lib/pypelib
+
   change the line: 
+
      /usr/bin/wget https://github.com/fp7-ofelia/pypelib/raw/deb/pypelib_latest_all.deb || error "Could not download pypel$
+
   into: 
+
      /usr/bin/wget --no-check-certificate https://github.com/fp7-ofelia/pypelib/raw/deb/pypelib_latest_all.deb || error "Could not download pypel$
      
    
@@ -45,6 +50,7 @@ Note 2: you will need to create the certificates for the Certification Authority
 
 Note 3: Modify the localsettings.py or mySettings.py depending on the component (i.e. expedient) being installed: 
         The next lines need to be changed:
+
           ROOT_USERNAME = "user"
           ROOT_PASSWORD = "pass"
 
@@ -75,8 +81,8 @@ Note 3: Modify the localsettings.py or mySettings.py depending on the component 
     cd /opt/ofelia/expedient/src/python/expedient/clearinghouse
     python manage.py syncdb
 
-3- Restart Apache
+- Restart Apache
 
-4- After that, an aggregate manager with the type 'Alien Resource Aggregate' can be created:
+- After that, an aggregate manager with the type 'Alien Resource Aggregate' can be created:
 
     Server URL: https://<IP-of-TBAM>:<port-of-TBAM>/
