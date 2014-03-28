@@ -1,4 +1,3 @@
-
 1. Requirements
 ---------------
 
@@ -75,6 +74,8 @@ Note 3: Modify the localsettings.py or mySettings.py depending on the component 
     git clone https://github.com/fp7-alien/OCF-TBPlugin.git TB-plugin
 
 - Copy the folder TB-plugin/alien_plugin under /opt/ofelia/expedient/src/python/plugins/
+
+- Copy the sa and ma cert files from the folder alien_plugin/certs to the folder doply/trusted of TBAM
 
 - Synchronize database:
 
