@@ -1,0 +1,239 @@
+approved 0
+vlan allocated 1
+ id 94
+status is checked True
+project name test
+starting alien slice 6
+starting alien slice urn:publicid:IDN+:fp7-alien:eu+slice+s1:6
+starting alien slice 24/07/14 05:28:00
+starting alien slice <rspec type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:aggregate="http://example.com/aggregate" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd"><aggregate:slice slice_urn="urn:publicid:IDN+:fp7-alien:eu+slice+s1:6" /><aggregate:timeslot end_time="26/07/2014 05:28:00" start_time="24/07/2014 05:28:00" /><aggregate:VLAN ALIEN="11" OFELIA="3" /><aggregate:controller url="tcp:137.222.204.156:6633" /><aggregate:project projectID="6c3f6b83-7d4c-4314-80cf-36ebb4f30141" projectName="test" /></rspec>
+Ofelia Island
+vlan start 1
+vlan end 3
+VLNs: [(1L, 3L)]
+ofelia vlan: 1
+approved 0
+vlan allocated 1
+ id 94
+reservation 24/07/2014 05:28:00
+reservation start 24/07/2014 05:28:00
+reservation end 26/07/2014 05:28:00
+approved 0
+vlan allocated 1
+ id 94
+approved 0
+vlan allocated Not set
+approved 0
+vlan allocated Not set
+ id 94
+approved 0
+vlan allocated None
+ id 94
+controller url is None
+controller url is tcp:11.11.11.11:1111
+approved 0
+vlan allocated None
+ id 94
+vlan id is None
+vlan id is 11
+approved 0
+vlan allocated None
+ id 94
+approved 0
+vlan allocated None
+ id 94
+approved 0
+vlan allocated None
+ id 94
+approved 0
+vlan allocated None
+ id 94
+status is checked True
+Setting urn to slice: 7
+project name test
+starting alien slice 7
+starting alien slice urn:publicid:IDN+:fp7-alien:eu+slice+s1:7
+starting alien slice 11/08/14 06:50:00
+starting alien slice <rspec type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:aggregate="http://example.com/aggregate" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd"><aggregate:slice slice_urn="urn:publicid:IDN+:fp7-alien:eu+slice+s1:7" /><aggregate:timeslot end_time="13/08/2014 06:50:00" start_time="11/08/2014 06:50:00" /><aggregate:VLAN ALIEN="11" OFELIA="33333" /><aggregate:controller url="tcp:11.11.11.11:1111" /><aggregate:project projectID="6c3f6b83-7d4c-4314-80cf-36ebb4f30141" projectName="test" /></rspec>
+Ofelia Island
+ofelia vlan: 33333
+approved 0
+vlan allocated 33333
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+approved 0
+vlan allocated 33333
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+status is checked True
+project name test
+starting alien slice 7
+starting alien slice urn:publicid:IDN+:fp7-alien:eu+slice+s1:7
+starting alien slice 11/08/14 06:50:00
+starting alien slice <rspec type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:aggregate="http://example.com/aggregate" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd"><aggregate:slice slice_urn="urn:publicid:IDN+:fp7-alien:eu+slice+s1:7" /><aggregate:timeslot end_time="13/08/2014 06:50:00" start_time="11/08/2014 06:50:00" /><aggregate:VLAN ALIEN="11" OFELIA="33333" /><aggregate:controller url="tcp:11.11.11.11:1111" /><aggregate:project projectID="6c3f6b83-7d4c-4314-80cf-36ebb4f30141" projectName="test" /></rspec>
+Ofelia Island
+ofelia vlan: 33333
+approved 0
+vlan allocated 33333
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+approved 0
+vlan allocated 33333
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+status is checked True
+project name test
+starting alien slice 7
+starting alien slice urn:publicid:IDN+:fp7-alien:eu+slice+s1:7
+starting alien slice 11/08/14 06:50:00
+starting alien slice <rspec type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:aggregate="http://example.com/aggregate" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd"><aggregate:slice slice_urn="urn:publicid:IDN+:fp7-alien:eu+slice+s1:7" /><aggregate:timeslot end_time="13/08/2014 06:50:00" start_time="11/08/2014 06:50:00" /><aggregate:VLAN ALIEN="11" OFELIA="33333" /><aggregate:controller url="tcp:11.11.11.11:1111" /><aggregate:project projectID="6c3f6b83-7d4c-4314-80cf-36ebb4f30141" projectName="test" /></rspec>
+Ofelia Island
+ofelia vlan: 33333
+approved 0
+vlan allocated 33333
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+approved 1
+vlan allocated 33333
+-1-1
+00
+11111111
+22222222
+33333333333
+Exception global name 'self' is not defined
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+approved 1
+vlan allocated 33333
+-1-1
+00
+11111111
+22222222
+33333333333
+4444444444
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+approved 1
+vlan allocated 6
+-1-1
+00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+controller url is None
+controller url is tcp:33.33.33.33:3333
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+vlan id is None
+vlan id is 4
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+status is checked True
+Setting urn to slice: 8
+project name test
+starting alien slice 8
+starting alien slice urn:publicid:IDN+:fp7-alien:eu+slice+s2:8
+starting alien slice 14/08/14 07:24:00
+starting alien slice <rspec type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:aggregate="http://example.com/aggregate" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd"><aggregate:slice slice_urn="urn:publicid:IDN+:fp7-alien:eu+slice+s2:8" /><aggregate:timeslot end_time="16/08/2014 07:24:00" start_time="14/08/2014 07:24:00" /><aggregate:VLAN ALIEN="4" OFELIA="-1" /><aggregate:controller url="tcp:33.33.33.33:3333" /><aggregate:project projectID="6c3f6b83-7d4c-4314-80cf-36ebb4f30141" projectName="test" /></rspec>
+Ofelia Island
+ofelia vlan: -1
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+reservation 14/08/2014 07:24:00
+reservation start 14/08/2014 07:24:00
+reservation end 16/08/2014 07:24:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+reservation 14/08/2014 07:24:00
+reservation start 14/08/2014 07:24:00
+reservation end 16/08/2014 07:24:00
+status is checked True
+project name test
+starting alien slice 8
+starting alien slice urn:publicid:IDN+:fp7-alien:eu+slice+s2:8
+starting alien slice 14/08/14 07:24:00
+starting alien slice <rspec type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:aggregate="http://example.com/aggregate" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd"><aggregate:slice slice_urn="urn:publicid:IDN+:fp7-alien:eu+slice+s2:8" /><aggregate:timeslot end_time="16/08/2014 07:24:00" start_time="14/08/2014 07:24:00" /><aggregate:VLAN ALIEN="4" OFELIA="-1" /><aggregate:controller url="tcp:33.33.33.33:3333" /><aggregate:project projectID="6c3f6b83-7d4c-4314-80cf-36ebb4f30141" projectName="test" /></rspec>
+Ofelia Island
+ofelia vlan: -1
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+reservation 14/08/2014 07:24:00
+reservation start 14/08/2014 07:24:00
+reservation end 16/08/2014 07:24:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+reservation 14/08/2014 07:24:00
+reservation start 14/08/2014 07:24:00
+reservation end 16/08/2014 07:24:00
+status is checked True
+project name test
+starting alien slice 8
+starting alien slice urn:publicid:IDN+:fp7-alien:eu+slice+s2:8
+starting alien slice 14/08/14 07:24:00
+starting alien slice <rspec type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:aggregate="http://example.com/aggregate" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd"><aggregate:slice slice_urn="urn:publicid:IDN+:fp7-alien:eu+slice+s2:8" /><aggregate:timeslot end_time="16/08/2014 07:24:00" start_time="14/08/2014 07:24:00" /><aggregate:VLAN ALIEN="4" OFELIA="-1" /><aggregate:controller url="tcp:33.33.33.33:3333" /><aggregate:project projectID="6c3f6b83-7d4c-4314-80cf-36ebb4f30141" projectName="test" /></rspec>
+Ofelia Island
+ofelia vlan: -1
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+reservation 14/08/2014 07:24:00
+reservation start 14/08/2014 07:24:00
+reservation end 16/08/2014 07:24:00
+ id 94
+reservation 11/08/2014 06:50:00
+reservation start 11/08/2014 06:50:00
+reservation end 13/08/2014 06:50:00
+reservation 14/08/2014 07:24:00
+reservation start 14/08/2014 07:24:00
+reservation end 16/08/2014 07:24:00

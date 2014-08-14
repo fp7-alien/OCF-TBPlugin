@@ -1,0 +1,104 @@
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% url css_media_alien_plugin 'style.css' %}">
+{% endblock %}
+{% if agg.resource_set.all %}
+<div class="alien_plugin_devices">
+ <table class="alien_plugin_devices">
+   <tr>
+     <th>
+       Device name
+     </th>
+
+   </tr>
+
+ {% with agg.resource_set.all as resource_set %}
+     {# Order resources by name #}
+     {#  % regroup resource_set|dictsort:"name" by name as resource_set_ordered % #}
+     {% for resource in resource_set %}
+     {# Get the first element within the list #}
+     {#% with resource.list.0.AlienResource as device %}#}
+     <tr id="sr_tr_{{ device.id }}" class = {% cycle 'even' 'odd' %}>
+      <td>
+        {{ resource.name }}
+      </td>
+     </tr>
+     {# Surrounding AlienResource row #}
+                        {#% endwith %#}
+     {% endfor %}
+ {% endwith %}
+
+
+
+ <tr>
+ <th>
+    Time Slot
+ </th>
+
+ </tr>
+ <tr class="odd">
+   <td>
+       <b>Start Date: {{start_date}}<br>End Date: {{end_date}}</b> <br>
+       <form method="POST" action="{% url alien_aggregate_slice_time_slot agg.id slice.id 0 0 %}" style="display:inline">{% csrf_token %}
+           <input type="submit" value={%if start_date != "Not set" and start_date != null %}"Update time slot"{%else%}"Set time slot"{%endif%} />
+       </form>
+   </td>
+ </tr>
+ <tr>
+ <th>
+
+ </th>
+
+ </tr>
+
+ <tr>
+ <th>
+    Controller
+ </th>
+
+ </tr>
+ <tr class="odd">
+   <td>
+       <b>{{alien_controller_url}}</b>
+       <form method="POST" action="{% url alien_aggregate_slice_controller_add agg.id slice.id %}" style="display:inline">{% csrf_token %}
+           <input type="submit" value={%if alien_controller_url != "Not set"  %}"Update controller"{%else%}"Set controller"{%endif%} />
+       </form>
+   </td>
+ </tr>
+ <tr>
+ <th>
+
+ </th>
+
+ </tr>
+
+ <tr>
+ <th>
+    VLAN ID
+ </th>
+
+ </tr>
+ <tr class="odd">
+   <td>
+       <b>{{alien_vlan_id}}</b>
+       <form method="POST" action="{% url alien_aggregate_slice_vlan_add agg.id slice.id %}" style="display:inline">{% csrf_token %}
+           <input type="submit" value={%if alien_vlan_id != "Not set" and alien_vlan_id != null%}"Update VLAN ID"{%else%}"Set VLAN ID"{%endif%} />
+       </form>
+   </td>
+ </tr>
+ <tr>
+ <th>
+<font color="red" >{% if slice_need_start != 0 %}Slice needs to be started/updated {% endif %}</font>
+ </th>
+
+ </tr>
+ </table>
+</div>
+{% else %}
+    <div class="alien_plugin_no_devices">
+        The aggregate manager does not contain any Alien resource yet, or this Expedient instance has not enough privileges to access current resources...
+    </div>
+{% endif %}
+
+
+
+

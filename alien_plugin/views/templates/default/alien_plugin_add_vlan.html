@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load ch_extras %}
+
+{% block title %}VLAN of Alien Slice {{ slice.name }}{% endblock title %}
+
+{% block content %}
+<div class="main">
+	<div class="title">
+		<h1>VLAN of Alien Slice <font class="highlight">{{ slice.name }}</font></h1>
+	</div>
+	<div class="form_div">
+
+		<form method="POST" action="{% url alien_aggregate_slice_vlan_add agg_id slice_id %}" style="display:inline">{% csrf_token %}
+            <table>
+                <tr>
+                    <td>
+                        <label for="id_vlan_id">Alien VLAN ID:</label>
+                        <input id="id_vlan_id" type="text" name="vlan_id" maxlength="100" />
+                        <font color={%if vlan_error == "error"%}"red"{%else%}"black"{%endif%}> {%if vlan_error == "error"%}The VLAN ID is not acceptable {%endif%}</font>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" value="Add VLAN" />
+                    </td>
+                </tr>
+
+            </table>
+       </form>
+	</div>
+</div>
+{% endblock content %}
