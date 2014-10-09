@@ -216,8 +216,13 @@ def get_reservations_in_Month(agg_id,year,month):
         reservation_set = AlienAggregateReservationModel.objects.filter(aggregate = agg)
         month_reservation=[]
         for reservation in reservation_set:
+            '''
             if reservation.start_date.year==year and reservation.start_date.month==month:
                 month_reservation.append(reservation)
+            if reservation.start_date.year==year and reservation.end_date.month==month:
+                month_reservation.append(reservation)
+            '''
+            month_reservation.append(reservation)
         return month_reservation
     except Exception as e:
         writeToLog("Exception %s" %str(e))
@@ -226,14 +231,17 @@ def get_reservations_in_Month(agg_id,year,month):
 def get_days_allocated_in_Month(agg_id,year,month):
     try:
         month_reservation=get_reservations_in_Month(agg_id,year,month)
-
         days=[]
         for reservation in month_reservation:
-            for day in range(1,31):
+            for day in range(1,32):
                 try:
-                    t = datetime(year, month, day, 14, 00)
+                    t = datetime(year, month, day, 00, 00)
+                    t2 = datetime(year, month, day, 14, 00)
                     if reservation.start_date<=t<=reservation.end_date:
                         days.append(day)
+                    else:
+                        if reservation.start_date<=t2<=reservation.end_date:
+                            days.append(day)
                 except:
                     pass
                 '''
@@ -303,6 +311,7 @@ def sync_am_resources(agg_id, geni3_Client):
                 srcPort=elem.attrib.get("portSrc")
                 dstPort=elem.attrib.get("portDst")
                 connections[srcDpid].append(dstDpid)
+                connections[dstDpid].append(srcDpid)
             elif element=="reservation":
                 writeToLog("reservation %s" %str(elem.attrib.get("start_time")))
                 try:

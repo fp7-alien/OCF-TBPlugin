@@ -11,6 +11,7 @@ from expedient.common.utils import create_or_update, modelfields
 from expedient.clearinghouse.slice.models import Slice
 from django.core.exceptions import ValidationError
 
+from alien_plugin.log.log import *
 
 cntrlr_url_re = re.compile(r"(tcp|ssl):(?P<address>[\w\.]*):(?P<port>\d*)")
 def validate_controller_url(value):
@@ -41,6 +42,14 @@ def validate_controller_url(value):
     else:
         error()
 
+def validate_slice_status(value):
+    if value=="":
+        writeToLog("1111")
+        raise ValidationError()
+    else:
+        writeToLog("2222")
+        pass
+
 def validate_vlan_id(value):
     first_vlan_id=1
     last_vlan_id=500
@@ -57,6 +66,11 @@ def validate_vlan_id(value):
     except:
         error()
 
+def generate_alien_slice_urn(slice_name,slice_id):
+    #urn:publicid:IDN+test:fp7-ofelia:eu+slice+pizzaslice
+    slice_urn='urn:publicid:IDN+:fp7-alien:eu+slice+%s:%s'% (slice_name,slice_id)
+    return slice_urn
+'''
 class AlienSliceInfo(models.Model):
     class Meta:
         """Meta class for AlienResource model."""
@@ -77,3 +91,47 @@ class AlienSliceInfo(models.Model):
         help_text=u"The format should be tcp:hostname:port or ssl:hostname:port")
     alien_vlan=models.IntegerField(null=True, blank=True )
     ofelia_vlan=models.IntegerField(null=True, blank=True)
+'''
+class AlienSliceInfo(models.Model):
+    class Meta:
+        """Meta class for AlienResource model."""
+        app_label = 'alien_plugin'
+
+    slice = models.OneToOneField(slice_models.Slice)
+    start_date= models.DateTimeField(
+        help_text="start date of reservation", null=True)
+    end_date= models.DateTimeField(
+        help_text="end date of reservation", null=True)
+    slice_urn= models.CharField(max_length = 1024, default = "")
+
+    slice_status= models.CharField(max_length = 1024,
+                                   validators=[validate_slice_status])
+
+    controller_url = models.CharField(
+        "OpenFlow controller URL", max_length=100, default = "Not set",
+        validators=[validate_controller_url],
+        help_text=u"The format should be tcp:hostname:port or ssl:hostname:port")
+    alien_vlan=models.IntegerField(null=True)
+    ofelia_vlan=models.IntegerField(null=True)
+
+class AlienAllocatedSliceInfo(models.Model):
+    class Meta:
+        """Meta class for AlienResource model."""
+        app_label = 'alien_plugin'
+
+    slice = models.OneToOneField(slice_models.Slice)
+    start_date= models.DateTimeField(
+        help_text="start date of reservation", null=True)
+    end_date= models.DateTimeField(
+        help_text="end date of reservation", null=True)
+    slice_urn= models.CharField(max_length = 1024, default = "")
+
+    slice_status= models.CharField(max_length = 1024,
+                                   validators=[validate_slice_status])
+
+    controller_url = models.CharField(
+        "OpenFlow controller URL", max_length=100, default = "Not set",
+        validators=[validate_controller_url],
+        help_text=u"The format should be tcp:hostname:port or ssl:hostname:port")
+    alien_vlan=models.IntegerField(null=True)
+    ofelia_vlan=models.IntegerField(null=True)

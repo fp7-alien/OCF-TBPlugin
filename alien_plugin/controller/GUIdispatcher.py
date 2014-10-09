@@ -17,11 +17,17 @@ from alien_plugin.models import AlienResource as AlienResourceModel,\
     AlienResourceAggregate as AlienResourceAggregateModel
 from alien_plugin.log.log import *
 from alien_plugin.models import AlienSliceInfo
+from alien_plugin.models import AlienResourceAggregate
 from alien_plugin.models.AlienSliceInfo import *
 from alien_plugin.calender.reserveCalender import *
 from alien_plugin.calender.reserveCalender import ResourceCalendar
 from alien_plugin.controller.AggregateReservation import AggregateReservation as AggregateReservationController
 from alien_plugin.controller.aggregate import *
+
+from plugins.openflow.plugin.models import OpenFlowAggregate
+from alien_plugin.controller.geni_api_three_client import *
+
+from expedient.clearinghouse.project.models import Project
 
 import copy
 import logging
@@ -30,6 +36,10 @@ from datetime import date, datetime, timedelta
 import calendar
 from calendar import monthrange
 import os.path
+
+from io import BytesIO
+from lxml import etree
+from xml.etree.ElementTree import Element, SubElement, Comment, tostring
 
 
 def create_resource(request, slice_id, agg_id):
@@ -177,9 +187,24 @@ def get_start_date(slice):
         start_date= "Not set"
     return start_date
 
+def get_allocated_start_date(slice):
+    try:
+        start_date = AlienAllocatedSliceInfo.objects.get(slice=slice).start_date
+    except:
+        start_date= "Not set"
+    return start_date
+
+
 def get_end_date(slice):
     try:
         end_date = AlienSliceInfo.objects.get(slice=slice).end_date
+    except:
+        end_date= "Not set"
+    return end_date
+
+def get_allocated_end_date(slice):
+    try:
+        end_date = AlienAllocatedSliceInfo.objects.get(slice=slice).end_date
     except:
         end_date= "Not set"
     return end_date
@@ -191,9 +216,38 @@ def get_controller_url(slice):
         controller_url= "Not set"
     return controller_url
 
+def get_allocated_controller_url(slice):
+    try:
+        controller_url = AlienAllocatedSliceInfo.objects.get(slice=slice).controller_url
+    except:
+        controller_url= "Not set"
+    return controller_url
+
+
 def get_vlan_id(slice):
     try:
         vlan_id = AlienSliceInfo.objects.get(slice=slice).alien_vlan
+    except:
+        vlan_id= "Not set"
+    return vlan_id
+
+def get_allocated_vlan_id(slice):
+    try:
+        vlan_id = AlienAllocatedSliceInfo.objects.get(slice=slice).alien_vlan
+    except:
+        vlan_id= "Not set"
+    return vlan_id
+
+def get_ofelia_vlan_id(slice):
+    try:
+        vlan_id = AlienSliceInfo.objects.get(slice=slice).ofelia_vlan
+    except:
+        vlan_id= "Not set"
+    return vlan_id
+
+def get_allocated_ofelia_vlan_id(slice):
+    try:
+        vlan_id = AlienAllocatedSliceInfo.objects.get(slice=slice).ofelia_vlan
     except:
         vlan_id= "Not set"
     return vlan_id
@@ -264,9 +318,12 @@ def book_time_slot(request, agg_id, slice_id, year, month):
         lCalendarFromMonth = datetime(lYear, lMonth, 1)
         lCalendarToMonth = datetime(lYear, lMonth, monthrange(lYear, lMonth)[1])
 
+        #writeToLog("year: %s" %str(pYear))
+        #writeToLog("month: %s" %str(pMonth))
         reservedDays=get_days_allocated_in_Month(agg_id,lYear,lMonth)
         #writeToLog("reserved days: %s"%str(reservedDays))
         lCalendar = ResourceCalendar().formatmonth2(lYear, lMonth,reservedDays)
+
 
         #lCalendar=None
         lPreviousYear = lYear
@@ -446,15 +503,124 @@ def get_ui_data(slice):
     """
     Hook method. Use this very same name so Expedient can get the resources for every plugin.
     """
+    '''
     try:
         slice_info=AlienSliceInfo.objects.get(slice=slice)
     except Exception as e:
         try:
             sr = AlienSliceInfo()
             sr.slice=slice
+            #sr.ofelia_vlan=-1
             sr.save()
         except Exception as e2:
             writeToLog("Exception %s" %str(e2))
+    '''
+
+    allocated_ofelia_vlan_id=get_ofelia_vlan_id(slice)
+    approved=0
+    vlan_set=[]
+    of_aggs = slice.aggregates.filter(leaf_name=OpenFlowAggregate.__name__.lower())
+
+    #available_vlans=[]
+    for of_agg in of_aggs:
+        gfs = of_agg.as_leaf_class().get_granted_flowspace(of_agg.as_leaf_class()._get_slice_id(slice))
+        #writeToLog("granted vlan %s" %str(available_vlans))
+        if len(gfs) > 0:
+            approved=1
+        for fs in gfs:
+            #writeToLog("fs vlan %s" %str(fs))
+            for fs1 in fs:
+                #writeToLog("fs1 vlan %s" %str(fs1))
+                #writeToLog("fs1 vlan openflow %s" %str(fs1['flowspace']['vlan_id_s']))
+                vlan_start=fs1['flowspace']['vlan_id_s']
+                vlan_end=fs1['flowspace']['vlan_id_e']+1
+                for k in range(vlan_start,vlan_end,1):
+                    vlan_set.append(k)
+
+    #writeToLog("vlan set %s" %str(vlan_set[0]))
+    #writeToLog("approved %s" %str(approved))
+    #writeToLog("vlan allocated %s" %str(allocated_ofelia_vlan_id))
+    if approved == 1:
+        #writeToLog("-1-1" )
+        if len(vlan_set) > 0:
+            #writeToLog("00" )
+            if vlan_set[0] != allocated_ofelia_vlan_id:
+                #writeToLog("11111111" )
+                # allocate the slice to update the ofelia vlan
+                info = AlienSliceInfo.objects.get(slice=slice)
+                allocated_info = AlienAllocatedSliceInfo.objects.get(slice=slice)
+
+                if info.slice_urn=='':
+                    slice=Slice.objects.get(id=info.slice_id)
+                    info.slice_urn=generate_alien_slice_urn(slice.name,info.id)
+
+                info.ofelia_vlan=vlan_set[0]
+                allocated_info.ofelia_vlan=vlan_set[0]
+
+                #writeToLog("22222222" )
+
+                project=Project.objects.get(id=slice.project_id)
+
+                ## create xml file for slice allocation:
+
+                root = Element('rspec')
+                root.set('type', 'request')
+
+                root.set('xmlns', 'http://www.geni.net/resources/rspec/3')
+                root.set('xmlns:xs', 'http://www.w3.org/2001/XMLSchema-instance')
+                root.set('xmlns:aggregate', 'http://example.com/aggregate')
+                root.set('xs:schemaLocation', 'http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd')
+
+                ch1 = SubElement(root, 'aggregate:slice',
+                                    {'slice_urn':info.slice_urn,
+                                    })
+
+                ch2 = SubElement(root, 'aggregate:timeslot',
+                                     {'start_time':info.start_date.strftime("%d/%m/%Y %H:%M:%S"),
+                                     'end_time':info.end_date.strftime("%d/%m/%Y %H:%M:%S"),
+                                      })
+
+                ch3 = SubElement(root, 'aggregate:VLAN',
+                                    {'ALIEN':str(info.alien_vlan),
+                                   'OFELIA':str(info.ofelia_vlan),
+                                      })
+
+                ch4 = SubElement(root, 'aggregate:controller',
+                                   {'url':str(info.controller_url),
+                                   })
+
+                ch5 = SubElement(root, 'aggregate:project',
+                                  {'projectID':str(project.uuid),
+                                   'projectName':str(project.name),
+                                   })
+
+
+                local_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'certs'))
+                key_path = os.path.join(local_path, "alice-key.pem") # make sure the CA of the AM is the same which issued this certificate (e.g. copy certificates from omni)
+                cert_path = os.path.join(local_path, "alice-cert.pem")
+                #writeToLog("33333333333" )
+
+                try:
+                    for agg in get_sr_aggregates(slice):
+                        alien_agg=AlienResourceAggregateModel.objects.get(id=agg.id)
+                        client = GENI3Client(alien_agg.get_client_IP(), alien_agg.get_client_port(), key_path, cert_path)
+                        with open(os.path.join(local_path, "alice-cred.xml"), 'r') as f:
+                            TEST_CREDENTIAL = {'geni_value': f.read(), 'geni_version': '3', 'geni_type': 'geni_sfa'}
+                        with open(os.path.join(local_path, "pizzaslice_cred.xml"), 'r') as f:
+                            TEST_SLICE_CREDENTIAL = {'geni_value': f.read(), 'geni_version': '3', 'geni_type': 'geni_sfa'}
+
+
+                        TEST_SLICE_URN = info.slice_urn
+                        res1=client.allocate(TEST_SLICE_URN, [TEST_SLICE_CREDENTIAL], tostring(root), datetime.now())
+
+                    info.save()
+                    allocated_info.save()
+
+                    #writeToLog("4444444444" )
+                except Exception as e:
+                    writeToLog("Exception %s" %str(e))
+                #
+
 
     ui_context = dict()
     try:
@@ -465,6 +631,26 @@ def get_ui_data(slice):
         ui_context['status'] = get_status(slice)
         #ui_context['alien_controller_url'] = 11
         ui_context['sr_list'] = get_sr_list(slice)
+
+        allocated_start_date=get_allocated_start_date(slice)
+        allocated_end_date=get_allocated_end_date(slice)
+        allocated_vlan_id=get_allocated_vlan_id(slice)
+        allocated_controller_url=get_allocated_controller_url(slice)
+
+        ui_context['slice_need_start']=0
+
+        if allocated_start_date!=ui_context['start_date']:
+            ui_context['slice_need_start']=1
+
+        if allocated_end_date!=ui_context['end_date']:
+            ui_context['slice_need_start']=1
+
+        if allocated_vlan_id!=ui_context['alien_vlan_id']:
+            ui_context['slice_need_start']=1
+
+        if allocated_controller_url!=ui_context['alien_controller_url']:
+            ui_context['slice_need_start']=1
+
 
         for agg in get_sr_aggregates(slice):
 

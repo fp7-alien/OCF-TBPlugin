@@ -4,7 +4,9 @@ from django.core.exceptions import MultipleObjectsReturned
 from expedient.clearinghouse.aggregate.models import Aggregate
 from expedient.common.permissions.shortcuts import must_have_permission
 from alien_plugin.models.AlienResource import AlienResource
-from alien_plugin.models.AlienSliceInfo import AlienSliceInfo
+from alien_plugin.models.AlienSliceInfo import *
+from expedient.clearinghouse.slice.models import Slice
+from expedient.clearinghouse.project.models import Project
 from alien_plugin.log.log import *
 from expedient.common.messaging.models import DatedMessage
 from expedient.common.timer.models import Job
@@ -30,6 +32,8 @@ from io import BytesIO
 from lxml import etree
 
 from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+from expedient.clearinghouse.slice.models import Slice
+from plugins.openflow.plugin.models import FlowSpaceRule
 
 # AlienResource Aggregate class
 class AlienResourceAggregate(Aggregate):
@@ -124,6 +128,17 @@ class AlienResourceAggregate(Aggregate):
 
         info = AlienSliceInfo.objects.get(slice=slice)
 
+        # set the urn if not set before
+        if info.slice_urn=='':
+            writeToLog("Setting urn to slice: %s" %str(info.id))
+            slice=Slice.objects.get(id=info.slice_id)
+            info.slice_urn=generate_alien_slice_urn(slice.name,info.id)
+
+            info.save()
+
+
+        project=Project.objects.get(id=slice.project_id)
+        writeToLog("project name %s" %str(project.name))
         writeToLog("starting alien slice %s" %str(info.id))
         writeToLog("starting alien slice %s" %str(info.slice_urn))
         writeToLog("starting alien slice %s" %info.start_date.strftime("%d/%m/%y %H:%M:%S"))
@@ -139,7 +154,7 @@ class AlienResourceAggregate(Aggregate):
 
 
         ch1 = SubElement(root, 'aggregate:slice',
-                             {'slice_urn':'urn:publicid:IDN+test:fp7-ofelia:eu+slice+pizzaslice',
+                             {'slice_urn':info.slice_urn,
                               })
 
         ch2 = SubElement(root, 'aggregate:timeslot',
@@ -149,11 +164,16 @@ class AlienResourceAggregate(Aggregate):
 
         ch3 = SubElement(root, 'aggregate:VLAN',
                              {'ALIEN':str(info.alien_vlan),
-                              'OFELIA':'3',
+                              'OFELIA':'-1',
                               })
 
         ch4 = SubElement(root, 'aggregate:controller',
                              {'url':str(info.controller_url),
+                              })
+
+        ch5 = SubElement(root, 'aggregate:project',
+                             {'projectID':str(project.uuid),
+                              'projectName':str(project.name),
                               })
 
         ## send allocate slice to TBAM
@@ -176,7 +196,8 @@ class AlienResourceAggregate(Aggregate):
 
             #resources = client2.listResources([TEST_CREDENTIAL], True, False)
 
-            TEST_SLICE_URN = 'urn:publicid:IDN+test:fp7-ofelia:eu+slice+pizzaslice'
+            #TEST_SLICE_URN = 'urn:publicid:IDN+test:fp7-ofelia:eu+slice+pizzaslice'
+            TEST_SLICE_URN = info.slice_urn
             #TEST_SLICE_URN = 'slice1'
             #client2.allocate(TEST_SLICE_URN, [TEST_SLICE_CREDENTIAL], tostring(root), datetime.now())
 
@@ -227,6 +248,7 @@ class AlienResourceAggregate(Aggregate):
                     #writeToLog("length %s" %str(len(ofelia_aggs)))
 
                     if len(ofelia_aggs)>0:
+                        writeToLog("Ofelia Island")
 
                         res=client2.provision([TEST_SLICE_URN], [TEST_SLICE_CREDENTIAL], best_effort=True, end_time= datetime.now())
                         #writeToLog("provision result: %s" %str(res))
@@ -254,6 +276,25 @@ class AlienResourceAggregate(Aggregate):
                                         alien_slice.slice_status='provisioned'
                                         alien_slice.save()
 
+                                        ## create allocated slice info
+                                        allocated_slice_info=AlienAllocatedSliceInfo()
+                                        try:
+                                            allocated_slice_info=AlienAllocatedSliceInfo.objects.get(slice=slice)
+                                        except:
+                                            allocated_slice_info=AlienAllocatedSliceInfo()
+                                            allocated_slice_info.slice=slice
+
+                                        allocated_slice_info.start_date=alien_slice.start_date
+                                        allocated_slice_info.end_date=alien_slice.end_date
+                                        allocated_slice_info.controller_url=alien_slice.controller_url
+                                        allocated_slice_info.slice_urn=alien_slice.slice_urn
+                                        allocated_slice_info.alien_vlan=alien_slice.alien_vlan
+                                        allocated_slice_info.ofelia_vlan=alien_slice.ofelia_vlan
+                                        allocated_slice_info.slice_status=alien_slice.slice_status
+                                        allocated_slice_info.save()
+
+                                        ##
+
                                         break
                             except Exception as e:
                                 writeToLog("Exception  %s" %str(e))
@@ -263,8 +304,27 @@ class AlienResourceAggregate(Aggregate):
 
                         alien_slice=AlienSliceInfo.objects.get(slice=slice)
 
+                        ### get ofelia VLAN ID
+                        '''
+                        slice = Slice.objects.filter(id=alien_slice.slice_id)[0]
+                        flowspace = FlowSpaceRule.objects.filter(slivers__slice=slice).distinct().order_by('id')
+                        vlans_slice = []
+                        for fs in flowspace:
+                            vlans_slice.append((fs.vlan_id_start, fs.vlan_id_end))
+                            writeToLog("vlan start %s" %str(fs.vlan_id_start))
+                            writeToLog("vlan end %s" %str(fs.vlan_id_end))
+
+                        writeToLog("VLNs: %s" %str(vlans_slice))
+
                         ### call allocate to update vlan ID
-                        ofelia_vlan=5
+                        #ofelia_vlan=5
+                        if len(vlans_slice)>0:
+                            ofelia_vlan=vlans_slice[0][0]
+                        else:
+                            ofelia_vlan=-1
+                        '''
+                        ofelia_vlan=-1
+                        writeToLog("ofelia vlan: %s" %str(ofelia_vlan))
                         alien_slice.ofelia_vlan=ofelia_vlan
                         alien_slice.save()
 
@@ -277,7 +337,7 @@ class AlienResourceAggregate(Aggregate):
                         root2.set('xs:schemaLocation', 'http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/ad.xsd http://example.com/dhcp/req.xsd')
 
                         ch1 = SubElement(root2, 'aggregate:slice',
-                                         {'slice_urn':'urn:publicid:IDN+test:fp7-ofelia:eu+slice+pizzaslice',
+                                         {'slice_urn':alien_slice.slice_urn,
                                           })
                         ch2 = SubElement(root2, 'aggregate:timeslot',
                                          {'start_time':alien_slice.start_date.strftime("%d/%m/%Y %H:%M:%S"),
@@ -312,6 +372,27 @@ class AlienResourceAggregate(Aggregate):
                         writeToLog("Provisioning is sucessful")
                         alien_slice.save()
 
+                        ## create allocated slice info
+                        allocated_slice_info=AlienAllocatedSliceInfo()
+                        try:
+                            allocated_slice_info=AlienAllocatedSliceInfo.objects.get(slice=slice)
+                        except:
+                            allocated_slice_info=AlienAllocatedSliceInfo()
+                            allocated_slice_info.slice=slice
+
+                        #allocated_slice_info=AlienAllocatedSliceInfo()
+                        #allocated_slice_info.slice=slice
+                        allocated_slice_info.start_date=alien_slice.start_date
+                        allocated_slice_info.end_date=alien_slice.end_date
+                        allocated_slice_info.controller_url=alien_slice.controller_url
+                        allocated_slice_info.slice_urn=alien_slice.slice_urn
+                        allocated_slice_info.alien_vlan=alien_slice.alien_vlan
+                        allocated_slice_info.ofelia_vlan=alien_slice.ofelia_vlan
+                        allocated_slice_info.slice_status=alien_slice.slice_status
+                        allocated_slice_info.save()
+
+                        ##
+
                 except:
                     pass
 
@@ -319,12 +400,62 @@ class AlienResourceAggregate(Aggregate):
         except Exception as e:
             writeToLog("Exception %s" %str(e))
             message=str(e)
+
+            ## return back to the original allocated resources, ignore the updated because not able to allocate
+            try:
+                allocated_slice_info=AlienAllocatedSliceInfo.objects.get(slice=slice)
+                slice_info=AlienSliceInfo.objects.get(slice=slice)
+                slice_info.start_date=allocated_slice_info.start_date
+                slice_info.end_date=allocated_slice_info.end_date
+                slice_info.controller_url=allocated_slice_info.controller_url
+                slice_info.slice_urn=allocated_slice_info.slice_urn
+                slice_info.alien_vlan=allocated_slice_info.alien_vlan
+                slice_info.ofelia_vlan=allocated_slice_info.ofelia_vlan
+                slice_info.slice_status=allocated_slice_info.slice_status
+                slice_info.save()
+            except Exception as e2:
+                pass
+
             raise Exception("Can't start slice  %s %s :" % (slice.name,message))
 
 
 
     def stop_slice(self, slice):
         super(AlienResourceAggregate, self).stop_slice(slice)
+        alien_slice=AlienSliceInfo.objects.get(slice=slice)
+        alien_slice.slice_status='stopped'
+        try:
+            local_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'certs'))
+            key_path = os.path.join(local_path, "alice-key.pem") # make sure the CA of the AM is the same which issued this certificate (e.g. copy certificates from omni)
+            cert_path = os.path.join(local_path, "alice-cert.pem")
+            client = GENI3Client(self.get_client_IP(), self.get_client_port(), key_path, cert_path)
+
+            with open(os.path.join(local_path, "alice-cred.xml"), 'r') as f:
+                TEST_CREDENTIAL = {'geni_value': f.read(), 'geni_version': '3', 'geni_type': 'geni_sfa'}
+            with open(os.path.join(local_path, "pizzaslice_cred.xml"), 'r') as f:
+                TEST_SLICE_CREDENTIAL = {'geni_value': f.read(), 'geni_version': '3', 'geni_type': 'geni_sfa'}
+
+            res=client.delete([alien_slice.slice_urn], [TEST_SLICE_CREDENTIAL])
+
+            alien_slice.save()
+
+            ## remove the allocated slice info
+            allocated_slice=AlienAllocatedSliceInfo.objects.filter(slice=slice)
+            if len(allocated_slice)>0:
+                AlienAllocatedSliceInfo.objects.get(slice=slice).delete()
+            '''
+            try:
+                AlienAllocatedSliceInfo.objects.get(slice=slice).delete()
+            except Exception as e1:
+                pass
+            '''
+
+
+        except Exception as e:
+            writeToLog("Exception %s" %str(e))
+            message=str(e)
+            raise Exception("Can't stop slice  %s %s :" % (slice.name,message))
+
         pass
 
 #    def get_resources(self, slice_id):
@@ -333,7 +464,7 @@ class AlienResourceAggregate(Aggregate):
 #            return AlienResource.objects.filter(slice_id = slice_id, aggregate = self.pk)
 
             DatedMessage.objects.post_message_to_user(
-                                "Could not synchronize resources %s within Expedient" % str("qqqqqqqqqqqqq"),
+                                "Could not synchronize resources within Expedient" ,
                                 user="root", msg_type=DatedMessage.TYPE_WARNING,
                             )
             return AlienResource.objects.filter(aggregate = self.pk)
